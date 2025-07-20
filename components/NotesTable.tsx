@@ -34,7 +34,7 @@ export default function NotesTable({ notes, search, onEditAction, onDeleteAction
         <TableRow>
           <TableHead>Title</TableHead>
           <TableHead>Content</TableHead>
-          <TableHead>Created At</TableHead>euoolkhhbgfdxaqezx
+          <TableHead>Created At</TableHead>
           <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>

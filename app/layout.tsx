@@ -3,6 +3,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "sonner"
 import AuthProvider from "@/components/AuthProvider"
+import Header from "@/components/Header"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -23,8 +24,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} antialiased`}>
         <AuthProvider>
-          {children}
-          <Toaster richColors />
+          <Header />
+          <main className="container mx-auto p-4">{children}</main>
+          {/* <Footer /> */}
+          <Toaster richColors position="bottom-right" />
+          {/* <Toaster richColors /> */}
         </AuthProvider>
       </body>
     </html>
