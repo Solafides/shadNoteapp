@@ -8,10 +8,19 @@ import { toast } from "sonner"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
-import { Form, FormField, FormItem, FormLabel, FormMessage, FormControl } from "@/components/ui/form"
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormControl,
+} from "@/components/ui/form"
 
+// ✅ Schema
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
+  subject: z.string().min(1, "Subject is required"),
   content: z.string().min(1, "Content is required"),
 })
 
@@ -20,20 +29,20 @@ type NoteFormValues = z.infer<typeof formSchema>
 type AddNoteFormProps = {
   onSuccess?: () => void
   initialData?: {
-    id: number
+    id?: number
     title: string
+    subject: string
     content: string
   }
 }
 
-
-
-export function AddNoteForm({ onSuccess }: AddNoteFormProps) {
+export function AddNoteForm({ onSuccess, initialData }: AddNoteFormProps) {
   const form = useForm<NoteFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      content: "",
+      title: initialData?.title || "",
+      subject: initialData?.subject || "",
+      content: initialData?.content || "",
     },
   })
 
@@ -48,7 +57,7 @@ export function AddNoteForm({ onSuccess }: AddNoteFormProps) {
 
       toast.success("Note added successfully")
       form.reset()
-      onSuccess?.() // 👈 this calls the prop if it's passed
+      onSuccess?.()
     } catch (err) {
       toast.error("Something went wrong")
     }
@@ -57,6 +66,7 @@ export function AddNoteForm({ onSuccess }: AddNoteFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* Title Field */}
         <FormField
           control={form.control}
           name="title"
@@ -71,6 +81,22 @@ export function AddNoteForm({ onSuccess }: AddNoteFormProps) {
           )}
         />
 
+        {/* Subject Field */}
+        <FormField
+          control={form.control}
+          name="subject"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Subject</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g. Math, Work, Reminder..." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Content Field */}
         <FormField
           control={form.control}
           name="content"
@@ -85,7 +111,10 @@ export function AddNoteForm({ onSuccess }: AddNoteFormProps) {
           )}
         />
 
-        <Button type="submit" className="w-full">Add Note</Button>
+        {/* Submit Button */}
+        <Button type="submit" className="w-full">
+          Add Note
+        </Button>
       </form>
     </Form>
   )

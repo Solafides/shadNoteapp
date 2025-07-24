@@ -21,16 +21,28 @@ export async function GET() {
     }
 
     const users = await prisma.user.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+  select: {
+    id: true,
+    email: true,
+    role: true,
+    createdAt: true,
+    notes: {
       select: {
         id: true,
-        email: true,
-        role: true,
+        title: true,
+        subject: true,
+        content: true,
         createdAt: true,
-      },
-      orderBy: { createdAt: "desc" },
-    })
+      }
+    }
+  }
+})
 
-    // ✅ Optionally validate with zod
+
+    //  Optionally validate with zod
     const userSchema = z.array(
       z.object({
         id: z.number(),
@@ -51,6 +63,7 @@ export async function GET() {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
+
 export async function DELETE(_: Request, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions)
@@ -67,18 +80,25 @@ export async function DELETE(_: Request, { params }: { params: { id: string } })
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Optional: prevent deleting yourself
     if (adminUser.id === params.id) {
       return NextResponse.json({ error: "You can't delete yourself" }, { status: 400 })
     }
 
+    //  First delete user's notes
+    await prisma.note.deleteMany({
+      where: { userId: params.id },
+    })
+
+    //  Then delete user
     await prisma.user.delete({
       where: { id: params.id },
     })
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('DELETE /api/admin/users/[id] error:', error)
+    console.error('❌ DELETE /api/admin/users/[id] error:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }
+
+

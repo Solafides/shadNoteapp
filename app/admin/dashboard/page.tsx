@@ -1,61 +1,59 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+import { redirect } from 'next/navigation'
+import { prisma } from '@/lib/prisma'
 import { UserTable } from '@/components/UserTable'
 
-type User = {
-  id: string
-  email: string
-  role: string
-  createdAt: string
-}
+export default async function AdminDashboardPage() {
+  const session = await getServerSession(authOptions)
 
-export default function AdminDashboard() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const [users, setUsers] = useState<User[]>([])
-
-useEffect(() => {
-  if (status === 'loading') return
-
-  if (status === 'unauthenticated' || session?.user?.role !== 'admin') {
-    router.push('/')
-  }
-}, [status, session])
-
-
-  const fetchUsers = async () => {
-    try {
-      const res = await fetch('/api/admin/users')
-      const data = await res.json()
-
-      if (!res.ok) {
-        toast.error(data.error || 'Unauthorized')
-        router.push('/')
-        return
-      }
-
-      setUsers(data)
-    } catch (err) {
-      toast.error('Failed to load users')
-    }
+  // 🔐 Redirect if not authenticated
+  if (!session?.user?.email) {
+    redirect('/login')
   }
 
-  if (status === 'loading') return <p className="p-6">Loading...</p>
+  // 🔐 Redirect if not admin
+  if (session.user.role !== 'admin') {
+    redirect('/')
+  }
 
-  return (
+  // ✅ Fetch all users and convert createdAt to string
+  const users = (
+  await prisma.user.findMany({
+    where: { role: { not: 'admin' } }, // Exclude admin users
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      createdAt: true,
+      notes: {
+        select: {
+          id: true,
+          title: true,
+          subject: true,
+          content: true,
+          createdAt: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  })
+).map((user) => ({
+  ...user,
+  createdAt: user.createdAt.toISOString(),
+  notes: user.notes.map((note) => ({
+    ...note,
+    createdAt: note.createdAt.toISOString(),
+  })),
+}))
+
+
+  return ( 
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">👑 Admin Dashboard</h1>
-      <UserTable users={users} refetch={fetchUsers} />
-        <button
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            onClick={fetchUsers}
-        >
-          Refresh Users
-        </button>
+      <h1 className="text-2xl font-bold mb-4"> Admin Dashboard</h1>
+      <UserTable users={users} />
     </div>
   )
 }

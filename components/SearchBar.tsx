@@ -17,7 +17,7 @@ export default function SearchBar({ onSearchAction }: Props) {
   }, [debouncedValue])
 
   return (
-    <div className="mb-4">
+    <div className="mb-4 mx-60">
       <Input
         placeholder="Search notes..."
         value={value}

@@ -5,6 +5,7 @@ import { z } from 'zod'
 
 // Step 1: Define input schema with zod
 const signupSchema = z.object({
+  name: z.string().min(2, { message: 'Name is required and must be at least 2 characters' }),
   email: z.string().email(),
   password: z.string().min(6),
 })
@@ -15,7 +16,7 @@ export async function POST(req: Request) {
     console.log('📦 Incoming signup:', body)
 
     // Step 2: Validate using zod
-    const { email, password } = signupSchema.parse(body)
+    const { name, email, password } = signupSchema.parse(body)
 
     // Step 3: Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -31,6 +32,7 @@ export async function POST(req: Request) {
 
     await prisma.user.create({
       data: {
+        name,
         email,
         password: hashedPassword,
       },

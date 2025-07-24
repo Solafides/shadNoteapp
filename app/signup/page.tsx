@@ -20,6 +20,7 @@ import {
 import { EyeIcon, EyeOffIcon } from 'lucide-react'
 
 const signupSchema = z.object({
+  name: z.string().min(2,{ message: 'Name is required and must be at least 2 characters' }),
   email: z.string().email({ message: 'Enter a valid email' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
 })
@@ -70,6 +71,19 @@ export default function SignupPage() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+                control={form.control}
+                   name="name"
+                    render={({ field }) => (
+                           <FormItem>
+                            <FormLabel>Name</FormLabel>
+                              <FormControl>
+                        <Input placeholder="John Doe" {...field} />
+                    </FormControl>
+                <FormMessage />
+               </FormItem>
+                   )}
+                     />
           <FormField
             control={form.control}
             name="email"

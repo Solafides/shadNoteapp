@@ -27,7 +27,7 @@ export default function RootLayout({
           <Header />
           <main className="container mx-auto p-4">{children}</main>
           {/* <Footer /> */}
-          <Toaster richColors position="bottom-right" />
+          <Toaster richColors position='top-center' />
           {/* <Toaster richColors /> */}
         </AuthProvider>
       </body>

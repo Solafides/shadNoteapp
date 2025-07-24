@@ -2,6 +2,14 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { z } from 'zod'
+import { Prisma } from '@prisma/client'
+
+const noteSchema = z.object({
+  subject: z.string().min(1),
+  title: z.string().min(1),
+  content: z.string().min(1),
+})
 
 export async function POST(req: Request) {
   try {
@@ -10,10 +18,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { title, content } = await req.json()
-    if (!title || !content) {
-      return NextResponse.json({ error: 'Title and content are required' }, { status: 400 })
-    }
+    const body = await req.json()
+    const { subject, title, content } = noteSchema.parse(body)
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
@@ -25,6 +31,7 @@ export async function POST(req: Request) {
 
     const note = await prisma.note.create({
       data: {
+        subject,
         title,
         content,
         userId: user.id,
@@ -32,7 +39,10 @@ export async function POST(req: Request) {
     })
 
     return NextResponse.json(note, { status: 201 })
-  } catch (error) {
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: 'Invalid input' }, { status: 400 })
+    }
     console.error('POST /api/notes error:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
@@ -46,8 +56,9 @@ export async function GET(req: Request) {
     }
 
     const { searchParams } = new URL(req.url)
-    const page = Number(searchParams.get('page') || 1)
+    const page = Number(searchParams.get('page')) || 1
     const search = searchParams.get('search') || ''
+    const subject = searchParams.get('subject') || ''
     const pageSize = 5
     const skip = (page - 1) * pageSize
 
@@ -59,29 +70,48 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
+    // ✅ Build filters type-safely
+    const filters: Prisma.NoteWhereInput[] = []
+
+    if (subject) {
+      filters.push({
+        subject: {
+          contains: subject,
+          mode: Prisma.QueryMode.insensitive,
+        },
+      })
+    }
+
+    filters.push({
+      OR: [
+        {
+          title: {
+            contains: search,
+            mode: Prisma.QueryMode.insensitive,
+          },
+        },
+        {
+          content: {
+            contains: search,
+            mode: Prisma.QueryMode.insensitive,
+          },
+        },
+      ],
+    })
+
+    const where: Prisma.NoteWhereInput = {
+      userId: user.id,
+      AND: filters,
+    }
+
     const notes = await prisma.note.findMany({
-      where: {
-        userId: user.id,
-        OR: [
-          { title: { contains: search, mode: 'insensitive' } },
-          { content: { contains: search, mode: 'insensitive' } },
-        ],
-      },
+      where,
       orderBy: { createdAt: 'desc' },
       take: pageSize,
       skip,
     })
 
-    const totalCount = await prisma.note.count({
-      where: {
-        userId: user.id,
-        OR: [
-          { title: { contains: search, mode: 'insensitive' } },
-          { content: { contains: search, mode: 'insensitive' } },
-        ],
-      },
-    })
-
+    const totalCount = await prisma.note.count({ where })
     const totalPages = Math.ceil(totalCount / pageSize)
 
     return NextResponse.json({

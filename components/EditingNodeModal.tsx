@@ -14,9 +14,11 @@ import  {EditNoteForm} from './EditNoteForm'
 type Note = {
   id: number
   title: string
+  subject: string
   content: string
   createdAt: string
 }
+
 
 type EditNodeModalProps = {
   note: Note

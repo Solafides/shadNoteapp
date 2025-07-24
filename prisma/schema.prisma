@@ -54,6 +54,7 @@ model Note {
   id        Int      @id @default(autoincrement())
   title     String
   content   String
+  subject   String
   createdAt DateTime @default(now())
   userId    String
   user      User     @relation(fields: [userId], references: [id])
