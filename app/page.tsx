@@ -58,13 +58,17 @@ export default function NotesPage() {
     }
   }, [debouncedSearch, page, status, subjectFilter])
 
-  const handleDelete = async (id: number) => {
-    const res = await fetch(`/api/notes/${id}`, { method: 'DELETE' })
-    if (res.ok) {
-      fetchNotes(page)
-      if (editingNote?.id === id) setEditingNote(null)
-    }
-  }
+ const handleDelete = async (id: number) => {
+  const noteToDelete = notes.find((n) => n.id === id)
+  if (!noteToDelete) return
+
+  const res = await fetch(`/api/notes/${id}`, { method: 'DELETE' })
+  if (!res.ok) throw new Error('Delete failed')
+
+  // return note content for undo
+  return noteToDelete
+}
+
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {

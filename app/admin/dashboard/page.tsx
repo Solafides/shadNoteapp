@@ -3,6 +3,9 @@ import { authOptions } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { UserTable } from '@/components/UserTable'
+import { getUserLoginsThisMonth, getNotesCreatedPerMonth, getTopNoteContributors } from '@/lib/analytics'
+import { UserStats } from '@/components/UserStats'
+import ClientOnly from './ClientOnly'
 
 export default async function AdminDashboardPage() {
   const session = await getServerSession(authOptions)
@@ -16,44 +19,64 @@ export default async function AdminDashboardPage() {
   if (session.user.role !== 'admin') {
     redirect('/')
   }
+ // 📊 Get data
+  const loginsThisMonth = await getUserLoginsThisMonth()
+  const notesPerMonth = await getNotesCreatedPerMonth()
+  const topUsers = await getTopNoteContributors()
+
+  // Build dummy monthly login chart (flat line for now, if only 1 value)
+  const loginData = notesPerMonth.map(month => ({
+    label: month.label,
+    count: month.label === new Date().toLocaleString('default', { month: 'short' })
+      ? loginsThisMonth
+      : 0
+  }))
+
+//   const [totalUsers, totalNotes] = await Promise.all([
+//   prisma.user.count(),
+//   prisma.note.count(),
+// ])
 
   // ✅ Fetch all users and convert createdAt to string
   const users = (
-  await prisma.user.findMany({
-    where: { role: { not: 'admin' } }, // Exclude admin users
-    select: {
-      id: true,
-      email: true,
-      role: true,
-      createdAt: true,
-      notes: {
-        select: {
-          id: true,
-          title: true,
-          subject: true,
-          content: true,
-          createdAt: true,
+    await prisma.user.findMany({
+      where: { role: { not: 'admin' } }, // Exclude admin users
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        notes: {
+          select: {
+            id: true,
+            title: true,
+            subject: true,
+            content: true,
+            createdAt: true,
+          },
         },
       },
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  })
-).map((user) => ({
-  ...user,
-  createdAt: user.createdAt.toISOString(),
-  notes: user.notes.map((note) => ({
-    ...note,
-    createdAt: note.createdAt.toISOString(),
-  })),
-}))
+      orderBy: {
+        createdAt: 'desc',
+      },
+    })
+  ).map((user) => ({
+    ...user,
+    createdAt: user.createdAt.toISOString(),
+    notes: user.notes.map((note) => ({
+      ...note,
+      id: note.id.toString(),
+      createdAt: note.createdAt.toISOString(),
+    })),
+  }));
 
-
-  return ( 
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4"> Admin Dashboard</h1>
-      <UserTable users={users} />
-    </div>
+  // Button toggle logic (Client Component Wrapper)
+  // This must be a client component to use state
+  // So we wrap the dashboard in a ClientOnly component
+  return (
+    <ClientOnly users={users} notesPerMonth={notesPerMonth} loginData={loginData} topUsers={topUsers} />
   )
 }
+
+
+

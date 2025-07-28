@@ -39,9 +39,9 @@ export async function POST(req: Request) {
     })
 
     return NextResponse.json({ message: 'User created' }, { status: 201 })
-  } catch (err: any) {
-    console.error('❌ Signup error:', err)
-
+  } catch (err: unknown) {
+    // console.error('❌ Signup error:', err)
+      
     if (err instanceof z.ZodError) {
       return NextResponse.json({ error: 'Invalid input' }, { status: 400 })
     }

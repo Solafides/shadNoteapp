@@ -24,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { highlight } from "@/lib/highlight"
 import EditNoteModal from "./EditingNodeModal"
+import { toast } from "sonner"
 import {
   Dialog,
   DialogTrigger,
@@ -55,7 +56,7 @@ type NotesTableProps = {
   notes: Note[]
   search: string
   onEditAction: (note: Note) => void
-  onDeleteAction: (id: number) => void
+  onDeleteAction: (id: number) => Promise<Note | void>
   page: number
   fetchNotesAction: (page: number) => void
 }
@@ -104,6 +105,42 @@ export default function NotesTable({
   if (notes.length === 0) {
     return <p className="text-gray-500 mt-6">No notes found.</p>
   }
+
+  const handleDeleteWithUndo = async (id: number) => {
+  try {
+    const deletedNote = await onDeleteAction(id)
+    toast.success('Note deleted successfully', {
+      action: {
+        label: 'Undo',
+        onClick: async () => {
+          if (!deletedNote) return
+          try {
+            const res = await fetch('/api/notes', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                title: deletedNote.title,
+                subject: deletedNote.subject,
+                content: deletedNote.content,
+              }),
+            })
+
+            if (!res.ok) throw new Error()
+            toast.success('Note restored')
+            fetchNotesAction(page)
+          } catch {
+            toast.error('Failed to undo delete')
+          }
+        },
+      },
+    })
+
+    fetchNotesAction(page)
+  } catch {
+    toast.error('Failed to delete note')
+  }
+}
+
 
   return (
     <div className="overflow-x-auto w-full space-y-4">
@@ -185,7 +222,10 @@ export default function NotesTable({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={() => onDeleteAction(note.id)} className="bg-red-500 hover:bg-red-600">Continue</AlertDialogAction>
+          <AlertDialogAction onClick={() => handleDeleteWithUndo(note.id)} className="bg-red-500 hover:bg-red-600">
+  Continue
+</AlertDialogAction>
+
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
