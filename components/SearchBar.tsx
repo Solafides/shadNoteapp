@@ -14,7 +14,7 @@ export default function SearchBar({ onSearchAction }: Props) {
 
   useEffect(() => {
     onSearchAction(debouncedValue)
-  }, [debouncedValue])
+  }, [debouncedValue, onSearchAction])
 
   return (
     <div className="mb-4 mx-60">

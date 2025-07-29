@@ -1,6 +1,6 @@
 import { prisma } from './prisma'
 import { startOfMonth, endOfMonth, subMonths } from 'date-fns'
-import { Prisma } from '@prisma/client'
+// import { Prisma } from '@prisma/client'
 
 // 1. Users logged in this month (based on sessions expiring in the current month)
 export async function getUserLoginsThisMonth() {
@@ -45,38 +45,38 @@ export async function getNotesCreatedPerMonth() {
 
 // 3. Top users by number of notes created
 export async function getTopNoteContributors(limit = 5) {
- const result = await prisma.note.groupBy({
-  by: ['userId'],
-  _count: {
-    id: true, // Count number of notes per user
-  },
-  orderBy: {
+  const result = await prisma.note.groupBy({
+    by: ['userId'],
     _count: {
-      id: 'desc', // Sort users by how many notes they created
+      id: true, // Count number of notes per user
     },
-  },
-  take: limit,
-})
-
-const users = await prisma.user.findMany({
-  where: {
-    id: {
-      in: result.map((r) => r.userId),
+    orderBy: {
+      _count: {
+        id: 'desc', // Sort users by how many notes they created
+      },
     },
-  },
-  select: {
-    id: true,
-    name: true,
-    email: true,
-  },
-})
+    take: limit,
+  })
 
-return result.map((entry) => {
-  const user = users.find((u) => u.id === entry.userId)
-  return {
-    userId: entry.userId,
-    name: user?.name || user?.email || 'Unknown',
-    count: entry._count.id, // ✅ this now matches groupBy
-  }
-})
+  const users = await prisma.user.findMany({
+    where: {
+      id: {
+        in: result.map((r: { userId: string }) => r.userId),
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
+  })
+
+  return result.map((entry: { userId: string; _count: { id: number } }) => {
+    const user = users.find((u: { id: string; name?: string; email?: string }) => u.id === entry.userId)
+    return {
+      userId: entry.userId,
+      name: user?.name || user?.email || 'Unknown',
+      count: entry._count.id, // this now matches groupBy
+    }
+  })
 }

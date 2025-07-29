@@ -10,7 +10,7 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: 'jwt',
-    maxAge: 60 * 60 * 24, // 1 day
+    maxAge: 60 * 60 * 1, // 1 hour
   },
   providers: [
     CredentialsProvider({
@@ -53,8 +53,22 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.role = token.role as string
         session.user.id = token.id as string
+        // Set JWT as a cookie for middleware
+        try {
+          // Only set cookie server-side
+          const { cookies } = await import('next/headers');
+          const cookieStore = await cookies();
+          cookieStore.set('next-auth.token', typeof token === 'string' ? token : JSON.stringify(token), {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            path: '/',
+            sameSite: 'lax',
+          });
+        } catch {
+          // Ignore if not in server context
+        }
       }
-      return session
+      return session;
     },
   },
   pages: {

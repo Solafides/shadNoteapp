@@ -38,13 +38,13 @@ export function UserStats({
   onRangeChange,
 }: Props) {
   const radialChartData = [
-    { browser: 'safari', visitors: loginsPerMonth.reduce((acc, cur) => acc + cur.count, 0), fill: '#6366F1' },
+    { browser: 'safari', visitors: loginsPerMonth.reduce((acc, _cur) => acc + _cur.count, 0), fill: '#6366F1' },
   ];
 
   // Example: total users, replace with actual prop or fetch if needed
-  const totalUsers = topUsers.reduce((acc, cur) => acc + 1, 0); // Replace with real total users count
+  const totalUsers = topUsers.reduce((acc, _) => acc + 1, 0); // Replace with real total users count
   const userRadialChartData = [
-    { name: 'Total Users', value: totalUsers, fill: '#10b981' },
+    { name: 'Total Users', value: totalUsers, fill: '#3b82f6' },
   ];
 
   return (
@@ -103,9 +103,9 @@ export function UserStats({
             </ResponsiveContainer>
           </CardContent>
           <CardFooter className="flex-col gap-2 text-sm">
-            <div className="flex items-center gap-2 leading-none font-medium">
+            {/* <div className="flex items-center gap-2 leading-none font-medium">
               Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-            </div>
+            </div> */}
             <div className="text-muted-foreground leading-none">
               Showing total visitors for selected range
             </div>
@@ -155,7 +155,7 @@ export function UserStats({
         {/* Notes Bar Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>📈 Notes Created</CardTitle>
+            <CardTitle>Notes Created</CardTitle>
             <CardDescription>Monthly breakdown</CardDescription>
           </CardHeader>
           <CardContent>
@@ -176,7 +176,7 @@ export function UserStats({
         {/* Logins Line Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>👥 User Logins</CardTitle>
+            <CardTitle> User Logins</CardTitle>
             <CardDescription>Monthly trend</CardDescription>
           </CardHeader>
           <CardContent>
@@ -187,7 +187,7 @@ export function UserStats({
                 <Tooltip />
                 <CartesianGrid strokeDasharray="3 3" />
                 <Legend />
-                <Line type="monotone" dataKey="count" stroke="#10b981" />
+                <Line type="monotone" dataKey="count" stroke="#3b82f6" />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -205,7 +205,7 @@ export function UserStats({
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="count" fill="#f59e0b" />
+                <Bar dataKey="count" fill="#3b82f6" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>

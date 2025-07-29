@@ -2,9 +2,8 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
-import { UserTable } from '@/components/UserTable'
 import { getUserLoginsThisMonth, getNotesCreatedPerMonth, getTopNoteContributors } from '@/lib/analytics'
-import { UserStats } from '@/components/UserStats'
+// ...existing code...
 import ClientOnly from './ClientOnly'
 
 export default async function AdminDashboardPage() {

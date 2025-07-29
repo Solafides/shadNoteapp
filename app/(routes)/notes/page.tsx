@@ -19,7 +19,7 @@ export default function NotesPage() {
     if (status === 'unauthenticated') {
       router.push('/login') // force login
     }
-  }, [status, session])
+  }, [status, session, router])
 
   // fallback UI
   if (status === 'loading') return <p>Loading...</p>
@@ -34,8 +34,10 @@ export default function NotesPage() {
       <NotesTable
         notes={[]}
         search=""
-        onEditAction={() => {}}
-        onDeleteAction={() => {}}
+        onEditAction={async () => {}}
+        onDeleteAction={async () => { return; }}
+        page={1}
+        fetchNotesAction={() => {}}
       />
     </div>
   )

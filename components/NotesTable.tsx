@@ -85,7 +85,7 @@ function ContentModal({ content }: { content: string }) {
 export default function NotesTable({
   notes,
   search,
-  onEditAction,
+  // onEditAction,
   onDeleteAction,
   page,
   fetchNotesAction,

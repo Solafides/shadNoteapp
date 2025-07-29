@@ -58,7 +58,7 @@ export default function SignupPage() {
 
       toast.success('Account created! Redirecting to login...')
       router.push('/login')
-    } catch (err) {
+    } catch {
       toast.error('Something went wrong')
     } finally {
       setLoading(false)

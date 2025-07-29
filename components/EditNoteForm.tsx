@@ -55,8 +55,8 @@ export function EditNoteForm({ onSuccess, initialData }: EditNoteFormProps) {
       toast.success("Note updated successfully")
       form.reset()
       onSuccess?.()
-    } catch (err) {
-      toast.error("Something went wrong")
+    } catch (_) {
+      toast.error("Failed to update note")
     }
   }
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import AddNoteModal from '@/components/AddNoteModal'
 import NotesTable from '@/components/NotesTable'
@@ -27,7 +27,7 @@ export default function NotesPage() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [editingNote, setEditingNote] = useState<Note | null>(null)
-  const [subjectFilter, setSubjectFilter] = useState('')
+  // const [subjectFilter, setSubjectFilter] = useState('')
 
   // ✅ Protect page by role
   useEffect(() => {
@@ -36,9 +36,9 @@ export default function NotesPage() {
     if (status === 'authenticated' && session?.user?.role === 'admin') {
       router.push('/admin/dashboard')
     }
-  }, [status, session])
+  }, [status, session, router])
 
-  const fetchNotes = async (pageNumber: number, subject = '') => {
+  const fetchNotes = useCallback(async (pageNumber: number, subject = '') => {
     try {
       const res = await fetch(
         `/api/notes?page=${pageNumber}&search=${debouncedSearch}&subject=${subject}`
@@ -50,13 +50,13 @@ export default function NotesPage() {
     } catch {
       console.error('Failed to load notes')
     }
-  }
+  }, [debouncedSearch])
 
   useEffect(() => {
     if (status === 'authenticated') {
-      fetchNotes(page, subjectFilter)
+      fetchNotes(page, '')
     }
-  }, [debouncedSearch, page, status, subjectFilter])
+  }, [debouncedSearch, page, status, fetchNotes])
 
  const handleDelete = async (id: number) => {
   const noteToDelete = notes.find((n) => n.id === id)
