@@ -12,6 +12,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { UserTable } from './UserTable'
+import { CreateUserForm } from './CreateUserForm'
 
 type Note = {
   id: number
@@ -65,9 +66,25 @@ export default function Header() {
                 <DialogHeader>
                   <DialogTitle>Manage Users</DialogTitle>
                 </DialogHeader>
+                
                 <UserTable users={users} refetch={fetchUsers} />
               </DialogContent>
             </Dialog>
+
+<Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="text-black border-white hover:bg-white hover:text-black">
+                  Add user
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-5xl max-h-[80vh] overflow-auto">
+                <DialogHeader>
+                  <DialogTitle>Add User</DialogTitle>
+                </DialogHeader>
+                <CreateUserForm refetch={fetchUsers} />
+              </DialogContent>
+            </Dialog>
+           
 
             <Button
               onClick={() => signOut()}
