@@ -6,7 +6,7 @@ import { compare } from 'bcrypt'
 // import { authOptions } from '@/lib/auth'
 import NextAuth from 'next-auth'
 
-export const authOptions: NextAuthOptions = {
+const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: 'jwt',

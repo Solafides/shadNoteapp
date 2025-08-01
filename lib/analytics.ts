@@ -72,7 +72,7 @@ export async function getTopNoteContributors(limit = 5) {
   })
 
   return result.map((entry: { userId: string; _count: { id: number } }) => {
-    const user = users.find((u: { id: string; name?: string; email?: string }) => u.id === entry.userId)
+    const user = users.find((u) => u.id === entry.userId)
     return {
       userId: entry.userId,
       name: user?.name || user?.email || 'Unknown',
