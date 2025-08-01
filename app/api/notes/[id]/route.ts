@@ -1,22 +1,24 @@
+
 import { prisma } from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { NextResponse } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
     const { title, content } = await req.json()
     if (!title || !content) {
       return NextResponse.json({ error: 'Title and content are required' }, { status: 400 })
     }
 
     const note = await prisma.note.findUnique({
-      where: { id: Number(params.id) },
+      where: { id: Number(id) },
     })
 
     if (!note) {
@@ -32,7 +34,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     }
 
     const updated = await prisma.note.update({
-      where: { id: Number(params.id) },
+      where: { id: Number(id) },
       data: { title, content },
     })
 
@@ -43,15 +45,16 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
     const note = await prisma.note.findUnique({
-      where: { id: Number(params.id) },
+      where: { id: Number(id) },
     })
 
     if (!note) {
@@ -66,7 +69,7 @@ export async function DELETE(_: Request, { params }: { params: { id: string } })
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    await prisma.note.delete({ where: { id: Number(params.id) } })
+    await prisma.note.delete({ where: { id: Number(id) } })
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('DELETE /api/notes/[id] error:', error)

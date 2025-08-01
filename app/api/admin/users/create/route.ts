@@ -31,7 +31,7 @@ export async function POST(req: Request) {
   const parsed = createUserSchema.safeParse(body);
 
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.errors }, { status: 400 });
+    return NextResponse.json({ error: parsed.error.issues }, { status: 400 });
   }
 
  const { name, email, password, role } = parsed.data;

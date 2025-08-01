@@ -47,14 +47,14 @@ export default function ClientOnly({ users, notesPerMonth, loginData, topUsers }
   }));
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4"> Admin Dashboard</h1>
+      {/* <h1 className="text-2xl font-bold mb-4"> Admin Dashboard</h1>
       <button
         className="mb-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
         onClick={() => setShowTable((prev) => !prev)}
       >
         {showTable ? "Hide Users data" : "Show Users data"}
       </button>
-      {showTable && <UserTable users={usersForTable} />}
+      {showTable && <UserTable users={usersForTable} />} */}
       <UserStats
         notesPerMonth={notesPerMonth}
         loginsPerMonth={loginData}
