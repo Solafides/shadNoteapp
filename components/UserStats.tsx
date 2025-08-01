@@ -1,16 +1,13 @@
-
 'use client'
 
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend, RadialBarChart, RadialBar, PolarRadiusAxis, PolarGrid, Label,
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend
 } from 'recharts'
 import {
-  Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter
+  Card, CardHeader, CardTitle, CardDescription, CardContent
 } from '@/components/ui/card'
-import { TrendingUp } from "lucide-react"
-import {
-  Select, SelectTrigger, SelectValue, SelectContent, SelectItem
-} from '@/components/ui/select'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
+import { TrendingUp } from 'lucide-react'
 
 type MonthlyData = {
   label: string
@@ -26,6 +23,9 @@ type Props = {
   notesPerMonth: MonthlyData[]
   loginsPerMonth: MonthlyData[]
   topUsers: TopUser[]
+  totalUsers: number
+  totalVisitors: number
+  activeUsers: number
   selectedRange?: string
   onRangeChange?: (range: string) => void
 }
@@ -34,19 +34,12 @@ export function UserStats({
   notesPerMonth,
   loginsPerMonth,
   topUsers,
+  totalUsers,
+  totalVisitors,
+  activeUsers,
   selectedRange = "6",
   onRangeChange,
 }: Props) {
-  const radialChartData = [
-    { browser: 'safari', visitors: loginsPerMonth.reduce((acc, _cur) => acc + _cur.count, 0), fill: '#6366F1' },
-  ];
-
-  // Example: total users, replace with actual prop or fetch if needed
-  const totalUsers = topUsers.reduce((acc, _) => acc + 1, 0); // Replace with real total users count
-  const userRadialChartData = [
-    { name: 'Total Users', value: totalUsers, fill: '#3b82f6' },
-  ];
-
   return (
     <div className="mt-6">
       <div className="flex justify-end mb-4">
@@ -62,96 +55,44 @@ export function UserStats({
         </Select>
       </div>
 
-      {/* First Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Visitor Radial Chart */}
-        <Card className="flex flex-col">
-          <CardHeader className="items-center pb-0">
-            <CardTitle>Visitor Summary</CardTitle>
-            <CardDescription>Summary from selected range</CardDescription>
-          </CardHeader>
-          <CardContent className="flex-1 pb-0">
-            <ResponsiveContainer width="100%" height={250}>
-              <RadialBarChart
-                data={radialChartData}
-                endAngle={100}
-                innerRadius={80}
-                outerRadius={140}
-              >
-                <PolarGrid gridType="circle" radialLines={false} stroke="none" polarRadius={[86, 74]} />
-                <RadialBar dataKey="visitors" background />
-                <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
-                  <Label
-                    content={({ viewBox }) => {
-                      if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                        return (
-                          <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
-                            <tspan x={viewBox.cx} y={viewBox.cy} className="fill-foreground text-4xl font-bold">
-                              {radialChartData[0].visitors.toLocaleString()}
-                            </tspan>
-                            <tspan x={viewBox.cx} y={(viewBox.cy || 0) + 24} className="fill-muted-foreground">
-                              Visitors
-                            </tspan>
-                          </text>
-                        )
-                      }
-                      return null
-                    }}
-                  />
-                </PolarRadiusAxis>
-              </RadialBarChart>
-            </ResponsiveContainer>
-          </CardContent>
-          <CardFooter className="flex-col gap-2 text-sm">
-            {/* <div className="flex items-center gap-2 leading-none font-medium">
-              Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-            </div> */}
-            <div className="text-muted-foreground leading-none">
-              Showing total visitors for selected range
-            </div>
-          </CardFooter>
-        </Card>
-
-        {/* Total Users Radial Chart */}
-        <Card className="flex flex-col">
-          <CardHeader className="items-center pb-0">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader>
             <CardTitle>Total Users</CardTitle>
-            <CardDescription>All registered users</CardDescription>
+            <CardDescription>All registered accounts</CardDescription>
           </CardHeader>
-          <CardContent className="flex-1 pb-0">
-            <ResponsiveContainer width="100%" height={250}>
-              <RadialBarChart
-                data={userRadialChartData}
-                endAngle={100}
-                innerRadius={80}
-                outerRadius={140}
-              >
-                <PolarGrid gridType="circle" radialLines={false} stroke="none" polarRadius={[86, 74]} />
-                <RadialBar dataKey="value" background />
-                <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
-                  <Label
-                    content={({ viewBox }) => {
-                      if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                        return (
-                          <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
-                            <tspan x={viewBox.cx} y={viewBox.cy} className="fill-foreground text-4xl font-bold">
-                              {userRadialChartData[0].value.toLocaleString()}
-                            </tspan>
-                            <tspan x={viewBox.cx} y={(viewBox.cy || 0) + 24} className="fill-muted-foreground">
-                              Users
-                            </tspan>
-                          </text>
-                        )
-                      }
-                      return null
-                    }}
-                  />
-                </PolarRadiusAxis>
-              </RadialBarChart>
-            </ResponsiveContainer>
+          <CardContent>
+            <p className="text-4xl font-bold">{totalUsers.toLocaleString()}</p>
+            <p className="text-muted-foreground text-sm">Across all time</p>
           </CardContent>
         </Card>
 
+        <Card>
+          <CardHeader>
+            <CardTitle>Visitors</CardTitle>
+            <CardDescription>Total visits (login sessions)</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-4xl font-bold">{totalVisitors.toLocaleString()}</p>
+            <p className="text-muted-foreground text-sm">Tracked in selected range</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Active Users</CardTitle>
+            <CardDescription>Users who logged in this month</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-4xl font-bold">{activeUsers.toLocaleString()}</p>
+            <p className="text-muted-foreground text-sm">Engaged this month</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* First Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         {/* Notes Bar Chart */}
         <Card>
           <CardHeader>
@@ -169,14 +110,11 @@ export function UserStats({
             </ResponsiveContainer>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Second Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         {/* Logins Line Chart */}
         <Card>
           <CardHeader>
-            <CardTitle> User Logins</CardTitle>
+            <CardTitle>User Logins</CardTitle>
             <CardDescription>Monthly trend</CardDescription>
           </CardHeader>
           <CardContent>
@@ -192,7 +130,10 @@ export function UserStats({
             </ResponsiveContainer>
           </CardContent>
         </Card>
+      </div>
 
+      {/* Second Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         {/* Top Users */}
         <Card>
           <CardHeader>

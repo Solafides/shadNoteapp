@@ -59,6 +59,9 @@ export default function ClientOnly({ users, notesPerMonth, loginData, topUsers }
         notesPerMonth={notesPerMonth}
         loginsPerMonth={loginData}
         topUsers={topUsers}
+        totalUsers={users.length}
+        totalVisitors={loginData.reduce((acc, cur) => acc + cur.count, 0)}
+        activeUsers={loginData.find(m => m.label === new Date().toLocaleString('default', { month: 'short' }))?.count || 0}
       />
     </div>
   );
