@@ -14,6 +14,7 @@ import {
 import { UserTable } from './UserTable'
 import { CreateUserForm } from './CreateUserForm'
 
+
 type Note = {
   id: number
   title: string
@@ -24,6 +25,7 @@ type Note = {
 
 type User = {
   id: string
+  name?: string
   email: string
   role: string
   createdAt: string
@@ -33,11 +35,12 @@ type User = {
 export default function Header() {
   const { data: session } = useSession()
   const [users, setUsers] = useState<User[]>([])
+  const [nameFilter, setNameFilter] = useState('')
 
   const fetchUsers = async () => {
     const res = await fetch('/api/admin/users')
     const data = await res.json()
-    setUsers(data)
+    setUsers(Array.isArray(data) ? data : [])
   }
 
   useEffect(() => {
@@ -62,15 +65,47 @@ export default function Header() {
                   Manage Users
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-5xl max-h-[80vh] overflow-auto">
+              <DialogContent className="w-full max-w-[95vw] max-h-[90vh] overflow-auto">
                 <DialogHeader>
                   <DialogTitle>Manage Users</DialogTitle>
                 </DialogHeader>
                 
-                <UserTable users={users} refetch={fetchUsers} />
+               <div className="space-y-4">
+  <div className="flex flex-col sm:flex-row items-center gap-2">
+    <input
+      type="text"
+      placeholder="Filter by name"
+      onChange={(e) => setNameFilter(e.target.value)}
+      className="p-2 border rounded w-full sm:w-[300px] text-black"
+    />
+
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="default" className="w-full sm:w-auto">
+           Add User
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-3xl max-h-[80vh] overflow-auto">
+        <DialogHeader>
+          <DialogTitle>Add User</DialogTitle>
+        </DialogHeader>
+        <CreateUserForm refetch={fetchUsers} />
+      </DialogContent>
+    </Dialog>
+  </div>
+
+  <UserTable
+    users={users.filter(user =>
+      user.name?.toLowerCase().includes(nameFilter.toLowerCase())
+    )}
+    refetch={fetchUsers}
+  />
+</div>
+
+
               </DialogContent>
             </Dialog>
-
+{/* 
 <Dialog>
               <DialogTrigger asChild>
                 <Button variant="outline" className="text-black border-white hover:bg-white hover:text-black">
@@ -83,7 +118,7 @@ export default function Header() {
                 </DialogHeader>
                 <CreateUserForm refetch={fetchUsers} />
               </DialogContent>
-            </Dialog>
+            </Dialog> */}
            
 
             <Button

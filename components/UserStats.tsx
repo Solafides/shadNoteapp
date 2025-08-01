@@ -111,30 +111,6 @@ export function UserStats({
           </CardContent>
         </Card>
 
-        {/* Logins Line Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle>User Logins</CardTitle>
-            <CardDescription>Monthly trend</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={loginsPerMonth}>
-                <XAxis dataKey="label" />
-                <YAxis />
-                <Tooltip />
-                <CartesianGrid strokeDasharray="3 3" />
-                <Legend />
-                <Line type="monotone" dataKey="count" stroke="#3b82f6" />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Second Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        {/* Top Users */}
         <Card>
           <CardHeader>
             <CardTitle>🏆 Top Note Creators</CardTitle>
@@ -151,6 +127,32 @@ export function UserStats({
             </ResponsiveContainer>
           </CardContent>
         </Card>
+
+        {/* Logins Line Chart */}
+        {/* <Card>
+          <CardHeader>
+            <CardTitle>User Logins</CardTitle>
+            <CardDescription>Monthly trend</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={loginsPerMonth}>
+                <XAxis dataKey="label" />
+                <YAxis />
+                <Tooltip />
+                <CartesianGrid strokeDasharray="3 3" />
+                <Legend />
+                <Line type="monotone" dataKey="count" stroke="#3b82f6" />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card> */}
+      </div>
+
+      {/* Second Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        {/* Top Users */}
+        
       </div>
     </div>
   )
