@@ -103,11 +103,11 @@ export default function Header() {
       </Dialog>
     )}
     <Button
-      onClick={() => signOut()}
-      className="text-sm font-semibold bg-white text-black hover:bg-red-400 hover:text-white"
-    >
-      Log Out
-    </Button>
+  onClick={() => signOut({ callbackUrl: '/login' })}
+  className="text-sm font-semibold bg-white text-black hover:bg-red-400 hover:text-white"
+>
+  Log Out
+</Button>
   </div>
 ) : (
   <div className="text-sm italic">Not logged in</div>
