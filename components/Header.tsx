@@ -57,80 +57,61 @@ export default function Header() {
         </Link>
 
         {session?.user ? (
-          <div className="flex gap-4 items-center">
-            {/* 👇 Manage Users Dialog Trigger */}
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="text-black border-white hover:bg-white hover:text-black">
-                  Manage Users
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="w-full max-w-[95vw] max-h-[90vh] overflow-auto">
-                <DialogHeader>
-                  <DialogTitle>Manage Users</DialogTitle>
-                </DialogHeader>
-                
-               <div className="space-y-4">
-  <div className="flex flex-col sm:flex-row items-center gap-2">
-    <input
-      type="text"
-      placeholder="Filter by name"
-      onChange={(e) => setNameFilter(e.target.value)}
-      className="p-2 border rounded w-full sm:w-[300px] text-black"
-    />
-
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="default" className="w-full sm:w-auto">
-           Add User
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-auto">
-        <DialogHeader>
-          <DialogTitle>Add User</DialogTitle>
-        </DialogHeader>
-        <CreateUserForm refetch={fetchUsers} />
-      </DialogContent>
-    </Dialog>
-  </div>
-
-  <UserTable
-    users={users.filter(user =>
-      user.name?.toLowerCase().includes(nameFilter.toLowerCase())
-    )}
-    refetch={fetchUsers}
-  />
-</div>
-
-
-              </DialogContent>
-            </Dialog>
-{/* 
-<Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="text-black border-white hover:bg-white hover:text-black">
-                  Add user
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-5xl max-h-[80vh] overflow-auto">
-                <DialogHeader>
-                  <DialogTitle>Add User</DialogTitle>
-                </DialogHeader>
-                <CreateUserForm refetch={fetchUsers} />
-              </DialogContent>
-            </Dialog> */}
-           
-
-            <Button
-              onClick={() => signOut()}
-              className="text-sm font-semibold bg-white text-black hover:bg-red-400 hover:text-white"
-            >
-              Log Out
-            </Button>
+  <div className="flex gap-4 items-center">
+    {/* 👇 Only show Manage Users for admin */}
+    {session.user.role === 'admin' && (
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="outline" className="text-black border-white hover:bg-white hover:text-black">
+            Manage Users
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="w-full max-w-[95vw] max-h-[90vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Manage Users</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row items-center gap-2">
+              <input
+                type="text"
+                placeholder="Filter by name"
+                onChange={(e) => setNameFilter(e.target.value)}
+                className="p-2 border rounded w-full sm:w-[300px] text-black"
+              />
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="default" className="w-full sm:w-auto">
+                    Add User
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-3xl max-h-[80vh] overflow-auto">
+                  <DialogHeader>
+                    <DialogTitle>Add User</DialogTitle>
+                  </DialogHeader>
+                  <CreateUserForm refetch={fetchUsers} />
+                </DialogContent>
+              </Dialog>
+            </div>
+            <UserTable
+              users={users.filter(user =>
+                user.name?.toLowerCase().includes(nameFilter.toLowerCase())
+              )}
+              refetch={fetchUsers}
+            />
           </div>
-        ) : (
-          <div className="text-sm italic">Not logged in</div>
-        )}
+        </DialogContent>
+      </Dialog>
+    )}
+    <Button
+      onClick={() => signOut()}
+      className="text-sm font-semibold bg-white text-black hover:bg-red-400 hover:text-white"
+    >
+      Log Out
+    </Button>
+  </div>
+) : (
+  <div className="text-sm italic">Not logged in</div>
+)}
       </div>
     </header>
   )
