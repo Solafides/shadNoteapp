@@ -61,7 +61,7 @@ type NotesTableProps = {
   fetchNotesAction: (page: number) => void
 }
 
-function ContentModal({ content }: { content: string }) {
+function ContentModal({ content, search }: { content: string; search: string }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -74,9 +74,12 @@ function ContentModal({ content }: { content: string }) {
           <DialogTitle>Note</DialogTitle>
           <DialogDescription>Full content of this note.</DialogDescription>
         </DialogHeader>
-        <div className="whitespace-pre-wrap text-sm max-h-[60vh] overflow-auto">
-          {content}
-        </div>
+        <div 
+          className="whitespace-pre-wrap text-sm max-h-[60vh] overflow-auto"
+          dangerouslySetInnerHTML={{
+            __html: highlight(content, search),
+          }}
+        />
       </DialogContent>
     </Dialog>
   )
@@ -143,7 +146,7 @@ export default function NotesTable({
 
 
   return (
-    <div className="overflow-x-auto w-full space-y-4">
+    <div className="overflow-x-auto w-full space-y-4 min-w-full">
       {/* Dropdown Filter */}
       <div className="w-[250px] font-semibold">
         <Select onValueChange={setSelectedSubject} defaultValue="all">
@@ -162,14 +165,14 @@ export default function NotesTable({
       </div>
 
       {/* Table */}
-      <Table className="text-sm w-full">
+      <Table className="text-sm w-full min-w-full">
         <TableHeader className="bg-gray-300">
           <TableRow>
-            <TableHead>Title</TableHead>
-            <TableHead>Subject</TableHead>
-            <TableHead>Content</TableHead>
-            <TableHead>Created At</TableHead>
-            <TableHead>Actions</TableHead>
+            <TableHead className="min-w-[120px]">Title</TableHead>
+            <TableHead className="min-w-[100px]">Subject</TableHead>
+            <TableHead className="min-w-[200px]">Content</TableHead>
+            <TableHead className="min-w-[120px]">Created At</TableHead>
+            <TableHead className="min-w-[100px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -185,13 +188,19 @@ export default function NotesTable({
                   __html: highlight(note.subject, search),
                 }}
               />
-              <TableCell className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 max-w-xs sm:max-w-sm break-words whitespace-pre-wrap">
-                <span className="text-sm text-gray-800">
-                  {note.content.length > 100
-                    ? note.content.slice(0, 100) + "..."
-                    : note.content}
-                </span>
-                <ContentModal content={note.content} />
+              <TableCell className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 min-w-[200px] max-w-[300px] sm:max-w-[400px] break-words whitespace-pre-wrap">
+                <span 
+                  className="text-sm text-gray-800 leading-relaxed"
+                  dangerouslySetInnerHTML={{
+                    __html: highlight(
+                      note.content.length > 100
+                        ? note.content.slice(0, 100) + "..."
+                        : note.content,
+                      search
+                    ),
+                  }}
+                />
+                <ContentModal content={note.content} search={search} />
               </TableCell>
               <TableCell>
                 {new Date(note.createdAt).toLocaleString()}

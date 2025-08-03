@@ -17,12 +17,14 @@ export default function SearchBar({ onSearchAction }: Props) {
   }, [debouncedValue, onSearchAction])
 
   return (
-    <div className="mb-4 mx-60">
+    <div className="mb-4 w-full px-2 sm:px-0">
       <Input
         placeholder="Search notes..."
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        className="w-full"
+        className="w-full max-w-full sm:max-w-xl"
+        autoComplete="on"
+        spellCheck={false}
       />
     </div>
   )
