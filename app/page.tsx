@@ -8,6 +8,7 @@ import NotesTable from '@/components/NotesTable'
 import SearchBar from '@/components/SearchBar'
 import PaginationControls from '@/components/PaginationControls'
 import { UseDebounced } from '@/hooks/UseDebounced'
+import { highlight } from '@/lib/highlight'
 
 type Note = {
   id: number
