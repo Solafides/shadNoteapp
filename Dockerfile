@@ -26,5 +26,5 @@ ENV NODE_ENV=production
 # Expose port (default for Next.js)
 EXPOSE 3000
 
-# ✅ REAL migrations run at runtime (will use DATABASE_URL from Fly secrets)
-CMD npx prisma migrate deploy && npm start
+# ✅ Runtime command (migrations will be run manually from Railway shell)
+CMD [ "npm", "start" ]
