@@ -1,15 +1,12 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
 import { useEffect, useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import AddNoteModal from '@/components/AddNoteModal'
 import NotesTable from '@/components/NotesTable'
 import SearchBar from '@/components/SearchBar'
 import PaginationControls from '@/components/PaginationControls'
 import { UseDebounced } from '@/hooks/UseDebounced'
 import { useAdminRedirect } from '@/hooks/useAdminRedirect'
-import { highlight } from '@/lib/highlight'
 import Spinner from '@/components/ui/Spinner'
 
 type Note = {
@@ -21,15 +18,13 @@ type Note = {
 }
 
 export default function NotesPage() {
-  const { status, session, isRedirecting, shouldShowContent } = useAdminRedirect()
-  const router = useRouter()
+  const { status, isRedirecting, shouldShowContent } = useAdminRedirect()
 
   const [notes, setNotes] = useState<Note[]>([])
   const [search, setSearch] = useState('')
   const debouncedSearch = UseDebounced(search, 500)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const [editingNote, setEditingNote] = useState<Note | null>(null)
   // const [subjectFilter, setSubjectFilter] = useState('')
 
   const fetchNotes = useCallback(async (pageNumber: number, subject = '') => {
@@ -85,7 +80,7 @@ export default function NotesPage() {
       <NotesTable
         notes={notes}
         search={search}
-        onEditAction={(note) => setEditingNote(note)}
+        onEditAction={() => {}}
         onDeleteAction={handleDelete}
         page={page}
         fetchNotesAction={fetchNotes}

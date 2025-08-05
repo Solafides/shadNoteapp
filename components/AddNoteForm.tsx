@@ -58,7 +58,7 @@ export function AddNoteForm({ onSuccess, initialData }: AddNoteFormProps) {
       toast.success("Note added successfully")
       form.reset()
       onSuccess?.()
-    } catch (_) {
+    } catch {
       toast.error("Failed to add note")
     }
   }

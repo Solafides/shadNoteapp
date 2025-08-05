@@ -19,16 +19,22 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials): Promise<User | null> {
-        if (!credentials?.email || !credentials?.password) return null
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error('Please provide both email and password')
+        }
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         })
 
-        if (!user) return null
+        if (!user) {
+          throw new Error('No account found with this email address')
+        }
 
         const isValid = await compare(credentials.password, user.password)
-        if (!isValid) return null
+        if (!isValid) {
+          throw new Error('Incorrect password')
+        }
 
         // Return minimal user info + custom fields (role, etc.)
         return {

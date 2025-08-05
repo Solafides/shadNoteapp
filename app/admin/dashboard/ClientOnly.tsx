@@ -1,7 +1,5 @@
 "use client"
 
-import { useState } from "react";
-import { UserTable } from '@/components/UserTable';
 import { UserStats } from '@/components/UserStats';
 
 type MonthlyData = {
@@ -36,15 +34,6 @@ type Props = {
 };
 
 export default function ClientOnly({ users, notesPerMonth, loginData, topUsers }: Props) {
-  const [showTable, setShowTable] = useState(false);
-  // Convert note.id to number for UserTable
-  const usersForTable = users.map(user => ({
-    ...user,
-    notes: user.notes.map(note => ({
-      ...note,
-      id: typeof note.id === 'string' ? Number(note.id) : note.id,
-    })),
-  }));
   return (
     <div className="max-w-6xl mx-auto p-6">
       {/* <h1 className="text-2xl font-bold mb-4"> Admin Dashboard</h1>

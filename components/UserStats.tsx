@@ -1,13 +1,12 @@
 'use client'
 
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer
 } from 'recharts'
 import {
   Card, CardHeader, CardTitle, CardDescription, CardContent
 } from '@/components/ui/card'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
-import { TrendingUp } from 'lucide-react'
 
 type MonthlyData = {
   label: string
@@ -21,7 +20,7 @@ type TopUser = {
 
 type Props = {
   notesPerMonth: MonthlyData[]
-  loginsPerMonth: MonthlyData[]
+  loginsPerMonth?: MonthlyData[]
   topUsers: TopUser[]
   totalUsers: number
   totalVisitors: number
@@ -32,7 +31,6 @@ type Props = {
 
 export function UserStats({
   notesPerMonth,
-  loginsPerMonth,
   topUsers,
   totalUsers,
   totalVisitors,

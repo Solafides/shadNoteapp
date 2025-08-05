@@ -20,16 +20,22 @@ const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials): Promise<User | null> {
-        if (!credentials?.email || !credentials?.password) return null
+        if (!credentials?.email || !credentials?.password) {
+          return null
+        }
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         })
 
-        if (!user) return null
+        if (!user) {
+          return null
+        }
 
         const isValid = await compare(credentials.password, user.password)
-        if (!isValid) return null
+        if (!isValid) {
+          return null
+        }
 
         return {
           id: user.id,
@@ -71,6 +77,7 @@ const authOptions: NextAuthOptions = {
       return session;
     },
   },
+  debug: process.env.NODE_ENV === 'development',
   pages: {
     signIn: '/login',
   },
