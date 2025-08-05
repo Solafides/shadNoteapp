@@ -1,32 +1,27 @@
 "use client";
-import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import Spinner from "@/components/ui/Spinner";
 
 export default function RouteLoader() {
-  const router = useRouter();
   const pathname = usePathname();
   const [loading, setLoading] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    const handleStart = () => {
-      // Add a slight delay to avoid flashing the loader for very fast transitions
-      timeout = setTimeout(() => setLoading(true), 100);
-    };
-    const handleComplete = () => {
-      clearTimeout(timeout);
-      setLoading(false);
-    };
-
-    // Listen to router events
-    router.events?.on?.("routeChangeStart", handleStart);
-    router.events?.on?.("routeChangeComplete", handleComplete);
-    router.events?.on?.("routeChangeError", handleComplete);
-
-    // Fallback: hide loader when path changes (for Next 13+ App Router)
+    // Start loader with a slight delay to avoid flashing for fast transitions
     setLoading(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => setLoading(true), 100);
+
+    // Hide loader after a short time (simulate loading, or you can adjust duration)
+    const minDuration = 400; // ms
+    const hideTimeout = setTimeout(() => setLoading(false), minDuration);
+
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      clearTimeout(hideTimeout);
+    };
   }, [pathname]);
 
   if (!loading) return null;
