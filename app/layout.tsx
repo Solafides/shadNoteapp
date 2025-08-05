@@ -4,6 +4,7 @@ import "./globals.css"
 import { Toaster } from "sonner"
 import AuthProvider from "@/components/AuthProvider"
 import Header from "@/components/Header"
+import RouteLoader from "@/components/RouteLoader";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -24,6 +25,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} antialiased`}>
         <AuthProvider>
+          <RouteLoader />
           <Header />
           <main className="container mx-auto p-4">{children}</main>
           {/* <Footer /> */}
