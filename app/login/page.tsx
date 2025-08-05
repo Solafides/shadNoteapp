@@ -1,8 +1,8 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { signIn } from 'next-auth/react'
-import { useState } from 'react'
+import { signIn, useSession } from 'next-auth/react'
+import { useState, useEffect } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -27,7 +27,19 @@ type LoginFormValues = z.infer<typeof formSchema>
 
 export default function LoginPage() {
   const router = useRouter()
+  const { data: session, status } = useSession()
   const [error, setError] = useState('')
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (status === 'authenticated') {
+      if (session?.user?.role === 'admin') {
+        router.push('/admin/dashboard')
+      } else {
+        router.push('/')
+      }
+    }
+  }, [status, session, router])
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(formSchema),
@@ -48,8 +60,19 @@ export default function LoginPage() {
     if (res?.error) {
       setError(res.error)
     } else {
-      router.push('/')
+      // The redirect will be handled by the useEffect above
+      // No need to manually redirect here
     }
+  }
+
+  // Show loading while checking authentication
+  if (status === 'loading') {
+    return <div className="flex justify-center items-center h-96">Loading...</div>
+  }
+
+  // Don't show login form if already authenticated
+  if (status === 'authenticated') {
+    return <div className="flex justify-center items-center h-96">Redirecting...</div>
   }
 
   return (

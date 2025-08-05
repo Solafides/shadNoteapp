@@ -8,7 +8,9 @@ import NotesTable from '@/components/NotesTable'
 import SearchBar from '@/components/SearchBar'
 import PaginationControls from '@/components/PaginationControls'
 import { UseDebounced } from '@/hooks/UseDebounced'
+import { useAdminRedirect } from '@/hooks/useAdminRedirect'
 import { highlight } from '@/lib/highlight'
+import Spinner from '@/components/ui/Spinner'
 
 type Note = {
   id: number
@@ -19,7 +21,7 @@ type Note = {
 }
 
 export default function NotesPage() {
-  const { data: session, status } = useSession()
+  const { status, session, isRedirecting, shouldShowContent } = useAdminRedirect()
   const router = useRouter()
 
   const [notes, setNotes] = useState<Note[]>([])
@@ -29,15 +31,6 @@ export default function NotesPage() {
   const [totalPages, setTotalPages] = useState(1)
   const [editingNote, setEditingNote] = useState<Note | null>(null)
   // const [subjectFilter, setSubjectFilter] = useState('')
-
-  // ✅ Protect page by role
-  useEffect(() => {
-    if (status === 'loading') return
-    if (status === 'unauthenticated') router.push('/login')
-    if (status === 'authenticated' && session?.user?.role === 'admin') {
-      router.push('/admin/dashboard')
-    }
-  }, [status, session, router])
 
   const fetchNotes = useCallback(async (pageNumber: number, subject = '') => {
     try {
@@ -54,10 +47,10 @@ export default function NotesPage() {
   }, [debouncedSearch])
 
   useEffect(() => {
-    if (status === 'authenticated') {
+    if (shouldShowContent) {
       fetchNotes(page, '')
     }
-  }, [debouncedSearch, page, status, fetchNotes])
+  }, [debouncedSearch, page, shouldShowContent, fetchNotes])
 
  const handleDelete = async (id: number) => {
   const noteToDelete = notes.find((n) => n.id === id)
@@ -77,7 +70,10 @@ export default function NotesPage() {
     }
   }
 
-  if (status === 'loading') return <p className="p-4">Loading session...</p>
+  // Show loading spinner while checking authentication, redirecting admin users, or when unauthenticated
+  if ((status as string) === 'loading' || isRedirecting || (status as string) === 'unauthenticated') {
+    return <div className="flex justify-center items-center h-96"><Spinner size={60} color="#6366f1" /></div>
+  }
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -85,9 +81,7 @@ export default function NotesPage() {
         <h1 className="text-2xl font-semibold">My Notes</h1>
         <AddNoteModal onNoteCreated={() => fetchNotes(page)} />
       </div>
-
       <SearchBar onSearchAction={setSearch} />
-
       <NotesTable
         notes={notes}
         search={search}
@@ -95,8 +89,8 @@ export default function NotesPage() {
         onDeleteAction={handleDelete}
         page={page}
         fetchNotesAction={fetchNotes}
+        loading={(status as string) === 'loading'}
       />
-
       <PaginationControls
         currentPage={page}
         totalPages={totalPages}

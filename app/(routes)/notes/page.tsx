@@ -4,6 +4,8 @@ import NotesTable  from "@/components/NotesTable"
 import { useSession } from 'next-auth/react'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Spinner from '@/components/ui/Spinner'
+import SearchBar from '@/components/SearchBar'
 
 export default function NotesPage() {
   const { data: session, status } = useSession()
@@ -22,7 +24,7 @@ export default function NotesPage() {
   }, [status, session, router])
 
   // fallback UI
-  if (status === 'loading') return <p>Loading...</p>
+  if (status === 'loading') return <div className="flex justify-center items-center h-96"><Spinner size={60} color="#6366f1" /></div>
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -30,7 +32,7 @@ export default function NotesPage() {
         <h1 className="text-2xl font-semibold">Notes</h1>
         <AddNoteModal />
       </div>
-
+      <SearchBar onSearchAction={() => {}} />
       <NotesTable
         notes={[]}
         search=""
@@ -38,6 +40,7 @@ export default function NotesPage() {
         onDeleteAction={async () => { return; }}
         page={1}
         fetchNotesAction={() => {}}
+        loading={status === 'loading'}
       />
     </div>
   )

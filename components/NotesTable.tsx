@@ -59,6 +59,7 @@ type NotesTableProps = {
   onDeleteAction: (id: number) => Promise<Note | void>
   page: number
   fetchNotesAction: (page: number) => void
+  loading?: boolean
 }
 
 function ContentModal({ content, search }: { content: string; search: string }) {
@@ -92,6 +93,7 @@ export default function NotesTable({
   onDeleteAction,
   page,
   fetchNotesAction,
+  loading = false,
 }: NotesTableProps) {
   const [selectedSubject, setSelectedSubject] = useState<string>("all")
 
@@ -105,7 +107,7 @@ export default function NotesTable({
     return notes.filter((note) => note.subject === selectedSubject)
   }, [notes, selectedSubject])
 
-  if (notes.length === 0) {
+  if (!loading && notes.length === 0) {
     return <p className="text-gray-500 mt-6">No notes found.</p>
   }
 
